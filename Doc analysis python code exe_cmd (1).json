@@ -1,0 +1,327 @@
+{
+  "name": "Doc analysis python code exe_cmd",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "69314214-80fc-43a6-a7c0-6fe7446d3d36",
+      "name": "PDF Extractor",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        16,
+        -2224
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "id": "5f9a3b28-b85e-4a0c-966e-e2143b9d57bb",
+      "name": "Publisher",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        832,
+        -2096
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "C:/Users/Uday/Documents/n8n workflows/Summary.txt",
+        "options": {}
+      },
+      "id": "5fb6b880-15b4-4c93-9a53-0d05348273ea",
+      "name": "Save to Folder",
+      "type": "n8n-nodes-base.readWriteFile",
+      "position": [
+        1024,
+        -2096
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -2032
+      ],
+      "id": "27b6e4b6-4fd5-4497-8fd1-eaf445ed31f0",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "fileSelector": "C:/Users/Uday/Documents/n8n workflows/data/2206.13491v1.docx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        -2032
+      ],
+      "id": "d7adabf1-74f6-4501-8202-aea9aee45a52",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=Role\nYou are a research analysis expert specializing in Data Science, Artificial Intelligence, Machine Learning, Software Engineering, and IT systems. You are skilled at analyzing research papers, technical whitepapers, and project reports to extract the most relevant technical, methodological, and results-driven details. You will be provided content from a research article:\n{{ $json.text }}\nYou are to analyze this text and provide a thorough technical summary.\n\nProvide your summary in the format of:\n\nTitle\n\nIntroduction:\n\n* What is the importance of this research in the context of Data Science / IT.\n* What specific problems or challenges does this research aim to address.\n* What are the main objectives and research questions.\n* What prior research, tools, algorithms, or frameworks have been used in this area.\n\nMethods / Approach:\n\n* Go into detail about the methodologies or algorithms applied.\n* What type of study or experiment is it (e.g., algorithm comparison, system design, case study, simulation).\n* What datasets or sources of data were used, including their size and characteristics.\n* How was the model, system, or software designed (architecture, framework, tools).\n* What parameters, variables, or performance metrics were measured. Clearly state primary and secondary metrics (e.g., accuracy, precision, recall, latency, scalability, throughput, cost efficiency).\n* Any preprocessing, feature engineering, or data augmentation techniques used.\n* Describe the experimental setup, evaluation protocols, and inclusion/exclusion criteria for data or models.\n\nResults:\n\n* This should be comprehensive.\n* Provide results for all measured metrics, including quantitative values and statistical significance if available.\n* Compare results between different methods, models, or systems tested.\n* Highlight improvements over baselines or prior approaches.\n\nSummary:\n\n* The specific conclusions drawn from the results.\n* How these results compare to other studies or benchmarks.\n* Any advantages, trade-offs, or unique contributions of this research.\n* Recommendations for applying these findings in real-world scenarios.\n\nConclusion:\n\n* List any limitations or weaknesses of the study.\n* Provide all suggestions for future research, model improvements, dataset expansion, or additional evaluations.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        -2096
+      ],
+      "id": "63d6ac5d-a681-4805-85df-67940345eef4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        -1872
+      ],
+      "id": "4ce5a575-1260-43b4-a871-c611b99cea2f",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "l9hKZIgBhzxBZnCf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4c0badea-e877-43f8-abe4-70a64a73184a",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "pdf",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        -2032
+      ],
+      "id": "e2391943-d2f1-46e8-bddc-b79d8e2c14c8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "command": "=python \"C:/Users/Uday/Documents/n8n workflows/get_file_path.py\" \"{{$binary.data.directory}}/{{$binary.data.fileName}}\"\n\n\n\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -1936
+      ],
+      "id": "bf09d18c-b422-4f29-81bb-565c12e2847e",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "command": "=python \"C:/Users/Uday/Documents/n8n workflows/docx_to_text.py\" \"{{ $json.stdout }}\"\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -1936
+      ],
+      "id": "7ebfa145-ee74-4143-bda9-4c33a8d9a280",
+      "name": "Execute Command1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $json.stdout }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        352,
+        -1936
+      ],
+      "id": "4792eb92-cdb3-430e-a632-fc9f7877b591",
+      "name": "Edit Fields",
+      "alwaysOutputData": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Publisher": {
+      "main": [
+        [
+          {
+            "node": "Save to Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF Extractor": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Publisher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "PDF Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Folder": {
+      "main": [
+        []
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Execute Command1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0a66246b-abf2-4742-bef2-76cefbbc3bf3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0f7205746738ee74badc955b20e6e35759c5f2fdefa98fa8dd26591c8eef23de"
+  },
+  "id": "TcgEIf3eSlmbwPvg",
+  "tags": []
+}

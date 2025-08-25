@@ -1,0 +1,207 @@
+{
+  "name": "Research Paper Analysis Cld",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "95ba5b65-5b41-45f7-a0a7-97abf4157ac8",
+      "name": "PDF Extractor",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        -368,
+        -3600
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "id": "8b1057d1-8e4d-440e-ad3e-893ad24a304d",
+      "name": "Publisher",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        208,
+        -3600
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "C:/Users/Uday/Documents/n8n workflows/Summary.txt",
+        "options": {}
+      },
+      "id": "923c616b-ea70-47ee-bee0-854ce4ab8850",
+      "name": "Save to Folder",
+      "type": "n8n-nodes-base.readWriteFile",
+      "position": [
+        432,
+        -3600
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Right click and open local file trigger.\n-Insert the path to your folder.  Open the folder and copy and paste the path at the top.\n-Example C:/Desktop/PDF\n-In the above example, PDF is the name of the folder.\n \nCreate an open ai key:\n-Create an open AI account\n-Go to platform.openai.com/api-keys\n-After creating an account click on your name in the top right corner. Click on your profile.\n-On the left side click on API keys.\n-Create new secret key.\n-Give it a name (optional).\n-Create secret key and copy.\n-Open the n8n workflow.\n-Right click and open the OpenAI chat model under Summarizer tools Agent.\n-Click under credential to connect with and click create new credential.\n-Paste the copied API Key in this position in n8n.\n-IMPORTANT: This workflow uses GPT-4o. This cost ~$0.01 per run. You must put money, recommend no more than $5, into your open ai account.\n-Click on your profile again. On left hand side click on billing.  Add credit to balance.\n \n \n \nRight click on save to folder node.\n-Insert path to folder where you want the summary saved.\n-Example C:/Desktop/Summary/Summary.txt\nTips: you can try saving it as a pdf, but I found saving it as a txt had less errors. \n-You can copy the path again, but you must make sure all \\ are / in the path. This is how n8n interprets the pathway. The trigger node does not matter and should not be changed because the converter node does this automatically.\n \n \nCommon issues:\n-If your first open/read/write files from disk node has an error saying no data, try running n8n as administrator.\n-If running localhost, search command prompt or terminal, before opening right click and choose run as administrator. Then start n8n as you normally would.\n-If the pdf is too large open AI will not be able to summarize it and will have an error that you have reached your limit of requests.\n \n \n \nHow it works:\nYou will have a folder predetermined on your computer. When you find a pdf of a scientific article that you would like a summary of, open n8n and click test workflow. Then save the pdf to the dedicated folder. With n8n running you click test step on the trigger. It will automatically produce a summary of the pdf and save it to a specified folder.\n \nHow to improve:\nIf you have a specific expertise in a field of study, you can customize the output to that field. For example, if you are a marine biologist, you can change the portion of the text prompt in the summarizer tool from \"You are a research expert who is providing data to another researcher.\" to \"You are a marine biologist expert who is providing data to another marine biologist.\"",
+        "height": 820,
+        "width": 1320,
+        "color": 5
+      },
+      "id": "c35036f1-9cf8-470f-b025-0c236a7421db",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -784,
+        -4640
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        -3600
+      ],
+      "id": "91916eee-665d-41ee-bd99-3246e96fe459",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "fileSelector": "C:/Users/Uday/Documents/n8n workflows/data/2206.13491v1.pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -3600
+      ],
+      "id": "069d60a9-2dad-4b9d-ba4d-8554ca58aedb",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=Role\nYou are a research analysis expert specializing in Data Science, Artificial Intelligence, Machine Learning, Software Engineering, and IT systems. You are skilled at analyzing research papers, technical whitepapers, and project reports to extract the most relevant technical, methodological, and results-driven details. You will be provided content from a research article:\n{{ $json.text }}\nYou are to analyze this text and provide a thorough technical summary.\n\nProvide your summary in the format of:\n\nTitle\n\nIntroduction:\n\n* What is the importance of this research in the context of Data Science / IT.\n* What specific problems or challenges does this research aim to address.\n* What are the main objectives and research questions.\n* What prior research, tools, algorithms, or frameworks have been used in this area.\n\nMethods / Approach:\n\n* Go into detail about the methodologies or algorithms applied.\n* What type of study or experiment is it (e.g., algorithm comparison, system design, case study, simulation).\n* What datasets or sources of data were used, including their size and characteristics.\n* How was the model, system, or software designed (architecture, framework, tools).\n* What parameters, variables, or performance metrics were measured. Clearly state primary and secondary metrics (e.g., accuracy, precision, recall, latency, scalability, throughput, cost efficiency).\n* Any preprocessing, feature engineering, or data augmentation techniques used.\n* Describe the experimental setup, evaluation protocols, and inclusion/exclusion criteria for data or models.\n\nResults:\n\n* This should be comprehensive.\n* Provide results for all measured metrics, including quantitative values and statistical significance if available.\n* Compare results between different methods, models, or systems tested.\n* Highlight improvements over baselines or prior approaches.\n\nSummary:\n\n* The specific conclusions drawn from the results.\n* How these results compare to other studies or benchmarks.\n* Any advantages, trade-offs, or unique contributions of this research.\n* Recommendations for applying these findings in real-world scenarios.\n\nConclusion:\n\n* List any limitations or weaknesses of the study.\n* Provide all suggestions for future research, model improvements, dataset expansion, or additional evaluations.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        -3600
+      ],
+      "id": "d4a57eea-7deb-436a-9d1c-899e6924c290",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelSource": "inferenceProfile",
+        "model": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAwsBedrock",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        -3376
+      ],
+      "id": "ceb82143-f0c2-4449-9ee0-9edae60396d3",
+      "name": "AWS Bedrock Chat Model",
+      "credentials": {
+        "aws": {
+          "id": "wr9qTidGrSO4xYQI",
+          "name": "AWS account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Publisher": {
+      "main": [
+        [
+          {
+            "node": "Save to Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF Extractor": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "PDF Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Publisher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS Bedrock Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9d18aea2-9012-492f-9760-0bc8e471f684",
+  "meta": {
+    "instanceId": "0f7205746738ee74badc955b20e6e35759c5f2fdefa98fa8dd26591c8eef23de"
+  },
+  "id": "iaC2JPUKLILlj4KD",
+  "tags": []
+}
