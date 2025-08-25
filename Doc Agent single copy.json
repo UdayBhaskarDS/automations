@@ -1,0 +1,173 @@
+{
+  "name": "Doc Agent single copy",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        -128
+      ],
+      "id": "957ec84c-7d59-42c9-9967-65220d0e9d89",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "https://docs.google.com/document/d/1pNMvLdzD_L4jSUkgIDFcANCWceF400i0qzUycE1X32g/edit?usp=sharing"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        -128
+      ],
+      "id": "a90a9e60-3802-413e-b068-6b6d27e4ec65",
+      "name": "Get a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "BtSlwXxOrPmSwWOG",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        80
+      ],
+      "id": "07ec23c8-4525-44ca-bc4c-06b080dfcdb3",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "l9hKZIgBhzxBZnCf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content }}",
+        "options": {
+          "systemMessage": "You are an AI extractor. \n\nTask: Extract ONLY what is explicitly written in the provided PRD text. \nDo NOT paraphrase, summarize, or invent. Copy text as-is.\n\nWhat to Extract:\n- Epic (main initiative / feature title).\n- Stories (StoryTitle + UserStory).\n- Requirements under each Story (RequirementTitle, Description, Priority).\n\nRules:\n- Use exact wording from the document. Do not rephrase.\n- If a field is missing, leave it as \"\" or \"Unspecified\".\n- Requirements must be taken only from sections labeled as requirements in the PRD.\n- Do not create new requirements, stories, or epics.\n- If something looks implied but is not explicitly written, skip it.\n- Preserve priority tags exactly as written (P0, P1, P2, P3).\n- Output must be a single valid JSON object. \n- No markdown fences, no commentary, no extra text.\n\nOutput Schema:\n{\n  \"Epic\": \"<Epic Title>\",\n  \"Stories\": [\n    {\n      \"StoryTitle\": \"<string>\",\n      \"UserStory\": \"<verbatim from PRD>\",\n      \"Requirements\": [\n        {\n          \"RequirementTitle\": \"<verbatim from PRD>\",\n          \"Description\": \"<verbatim from PRD>\",\n          \"Priority\": \"P0|P1|P2|P3|Unspecified\"\n        }\n      ]\n    }\n  ]\n}\n\nExample:\nDocument snippet:\n\"Requirement – Reminder Entry Point in Chat\nUser Story\nAs a user, I should be able to create a reminder directly from a chat message...\"\n\nExpected JSON:\n{\n  \"Epic\": \"Smart Reminders\",\n  \"Stories\": [\n    {\n      \"StoryTitle\": \"Reminder Entry Point in Chat\",\n      \"UserStory\": \"As a user, I should be able to create a reminder directly from a chat message...\",\n      \"Requirements\": [\n        {\n          \"RequirementTitle\": \"Long press → Set Reminder\",\n          \"Description\": \"Long-pressing a chat message shows the 'Set Reminder' option...\",\n          \"Priority\": \"P0\"\n        },\n        {\n          \"RequirementTitle\": \"+ Reminder button\",\n          \"Description\": \"Dedicated '+ Reminder' button available in the chat toolbar...\",\n          \"Priority\": \"P0\"\n        }\n      ]\n    }\n  ]\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -528,
+        -128
+      ],
+      "id": "633a041c-e528-4274-b5af-7b9783985ab5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.response || $json.data || $json.output;\ntry {\n  return [{ json: JSON.parse(raw) }];\n} catch (e) {\n  return [{ json: { error: \"Invalid JSON\", raw: raw }}];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        -128
+      ],
+      "id": "4438b1e8-549c-465e-9a54-0f74ddfcd328",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -128
+      ],
+      "id": "5d772618-d5f5-4742-bdcd-e5c5a8220b62",
+      "name": "Read/Write Files from Disk"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d5b9151e-73a5-44ae-89b6-8d2f8e129857",
+  "meta": {
+    "instanceId": "0f7205746738ee74badc955b20e6e35759c5f2fdefa98fa8dd26591c8eef23de"
+  },
+  "id": "rkJoAQSFT2l0hmsk",
+  "tags": []
+}
