@@ -1,0 +1,253 @@
+{
+  "name": "My workflow 15",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "test-data",
+              "name": "testData",
+              "value": "={\n  \"epic\": {\n    \"name\": \"User Authentication System\",\n    \"description\": \"Implement complete user authentication and authorization system\"\n  },\n  \"story\": {\n    \"title\": \"As a user, I want to login with email and password\",\n    \"description\": \"User should be able to authenticate using their email address and password\"\n  }\n}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b8bafd7c-e6a3-4a64-b7a7-bfc138bbc9d1",
+      "name": "Test JSON Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "10000",
+          "mode": "list",
+          "cachedResultName": "My Scrum Project"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "10001",
+          "mode": "list",
+          "cachedResultName": "Epic"
+        },
+        "summary": "={{ $json.testData.epic.name }}",
+        "additionalFields": {
+          "description": "={{ $json.testData.epic.description }}"
+        }
+      },
+      "id": "e7733d86-a0ea-4175-894d-674743b674c4",
+      "name": "Create Epic",
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -48
+      ],
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "ah2aJ0jIe35QE5D8",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "epic-key",
+              "name": "epicKey",
+              "value": "={{ $json.key }}",
+              "type": "string"
+            },
+            {
+              "id": "epic-id",
+              "name": "epicId",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "epic-name",
+              "name": "epicName",
+              "value": "={{ $('Test JSON Input').item.json.testData.epic.name }}",
+              "type": "string"
+            },
+            {
+              "id": "story-title",
+              "name": "storyTitle",
+              "value": "={{ $('Test JSON Input').item.json.testData.story.title }}",
+              "type": "string"
+            },
+            {
+              "id": "story-description",
+              "name": "storyDescription",
+              "value": "={{ $('Test JSON Input').item.json.testData.story.description }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5a9bb01e-5606-467e-ba22-c7cefeb64bb4",
+      "name": "Store Epic Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "10000",
+          "mode": "list",
+          "cachedResultName": "My Scrum Project"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "10009",
+          "mode": "list",
+          "cachedResultName": "Story"
+        },
+        "summary": "={{ $json.storyTitle }}",
+        "additionalFields": {
+          "description": "={{ $json.storyDescription }}"
+        }
+      },
+      "id": "319df96c-4016-4116-bd09-7d940aa871c9",
+      "name": "Create Story",
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -48
+      ],
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "ah2aJ0jIe35QE5D8",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "final-epic-key",
+              "name": "epicKey",
+              "value": "={{ $('Store Epic Data').item.json.epicKey }}",
+              "type": "string"
+            },
+            {
+              "id": "final-epic-name",
+              "name": "epicName",
+              "value": "={{ $('Store Epic Data').item.json.epicName }}",
+              "type": "string"
+            },
+            {
+              "id": "story-key",
+              "name": "storyKey",
+              "value": "={{ $json.key }}",
+              "type": "string"
+            },
+            {
+              "id": "story-title",
+              "name": "storyTitle",
+              "value": "={{ $('Store Epic Data').item.json.storyTitle }}",
+              "type": "string"
+            },
+            {
+              "id": "link-status",
+              "name": "linkStatus",
+              "value": "Story linked to Epic successfully",
+              "type": "string"
+            },
+            {
+              "id": "created-at",
+              "name": "createdAt",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "77b1ea2e-db00-4966-845a-94318a225600",
+      "name": "Final Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        -48
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Test JSON Input": {
+      "main": [
+        [
+          {
+            "node": "Create Epic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Epic": {
+      "main": [
+        [
+          {
+            "node": "Store Epic Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Epic Data": {
+      "main": [
+        [
+          {
+            "node": "Create Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Story": {
+      "main": [
+        [
+          {
+            "node": "Final Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "853e118e-ab58-4208-8672-f7244b281bad",
+  "meta": {
+    "instanceId": "0f7205746738ee74badc955b20e6e35759c5f2fdefa98fa8dd26591c8eef23de"
+  },
+  "id": "67k9r7XSfWOWak09",
+  "tags": []
+}
